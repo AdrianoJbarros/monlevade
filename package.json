@@ -1,0 +1,35 @@
+{
+  "name": "webgis-leaflet",
+  "version": "1.0.0",
+  "description": "Sistema WebGIS desenvolvido com Leaflet para visualização de dados geográficos",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "live-server --port=8000",
+    "serve": "python -m http.server 8000"
+  },
+  "keywords": [
+    "webgis",
+    "leaflet",
+    "geojson",
+    "maps",
+    "gis",
+    "geographic",
+    "visualization"
+  ],
+  "author": "Desenvolvedor WebGIS",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seu-usuario/webgis-leaflet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/seu-usuario/webgis-leaflet/issues"
+  },
+  "homepage": "https://github.com/seu-usuario/webgis-leaflet#readme"
+} 
