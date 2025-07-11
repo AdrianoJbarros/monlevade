@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico - WebGIS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        #map {
+            height: 400px;
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico do WebGIS</h1>
+        
+        <div id="status"></div>
+        
+        <h2>Testes de Conectividade</h2>
+        <button class="test-btn" onclick="testLeaflet()">Testar Leaflet</button>
+        <button class="test-btn" onclick="testMapTiles()">Testar Tiles do Mapa</button>
+        <button class="test-btn" onclick="testGeoJSON()">Testar GeoJSON</button>
+        <button class="test-btn" onclick="testServer()">Testar Servidor</button>
+        
+        <h2>Mapa de Teste</h2>
+        <div id="map"></div>
+        
+        <h2>Logs de Diagnóstico</h2>
+        <div id="logs" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        let map;
+        let logs = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            logs.push(logEntry);
+            
+            const logsDiv = document.getElementById('logs');
+            logsDiv.innerHTML = logs.join('<br>');
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            
+            console.log(logEntry);
+        }
+        
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function testLeaflet() {
+            log('Testando carregamento do Leaflet...');
+            
+            if (typeof L !== 'undefined') {
+                log('✅ Leaflet carregado com sucesso');
+                updateStatus('✅ Leaflet está funcionando corretamente', 'success');
+                
+                // Inicializar mapa de teste
+                if (!map) {
+                    try {
+                        map = L.map('map').setView([-19.8236, -43.1736], 12);
+                        log('✅ Mapa de teste criado com sucesso');
+                    } catch (error) {
+                        log(`❌ Erro ao criar mapa: ${error.message}`, 'error');
+                    }
+                }
+            } else {
+                log('❌ Leaflet não foi carregado', 'error');
+                updateStatus('❌ Leaflet não foi carregado. Verifique a conexão com a internet.', 'error');
+            }
+        }
+        
+        function testMapTiles() {
+            log('Testando tiles do mapa...');
+            
+            if (!map) {
+                log('❌ Mapa não foi inicializado. Execute o teste do Leaflet primeiro.', 'error');
+                return;
+            }
+            
+            try {
+                const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                });
+                
+                tileLayer.addTo(map);
+                log('✅ Tiles do OpenStreetMap carregados com sucesso');
+                updateStatus('✅ Tiles do mapa estão funcionando', 'success');
+            } catch (error) {
+                log(`❌ Erro ao carregar tiles: ${error.message}`, 'error');
+                updateStatus('❌ Erro ao carregar tiles do mapa', 'error');
+            }
+        }
+        
+        function testGeoJSON() {
+            log('Testando carregamento de GeoJSON...');
+            
+            // Testar dados de imóveis
+            fetch('data/imoveis.geojson')
+                .then(response => {
+                    log(`Resposta do servidor: ${response.status} ${response.statusText}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    log(`✅ Dados de imóveis carregados: ${data.features ? data.features.length : 0} features`);
+                    
+                    if (map && data.features && data.features.length > 0) {
+                        const layer = L.geoJSON(data, {
+                            style: {color: '#ff0000', fillColor: '#ff4444', fillOpacity: 0.3}
+                        }).addTo(map);
+                        log('✅ Camada de imóveis adicionada ao mapa');
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Erro ao carregar dados de imóveis: ${error.message}`, 'error');
+                });
+            
+            // Testar dados de Monlevade
+            fetch('data/Monlevade.geojson')
+                .then(response => {
+                    log(`Resposta do servidor para Monlevade: ${response.status} ${response.statusText}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    log(`✅ Dados de Monlevade carregados: ${data.features ? data.features.length : 0} features`);
+                    
+                    if (map && data.features && data.features.length > 0) {
+                        const layer = L.geoJSON(data, {
+                            style: {color: '#0000ff', fillColor: '#4444ff', fillOpacity: 0.2}
+                        }).addTo(map);
+                        log('✅ Camada de Monlevade adicionada ao mapa');
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Erro ao carregar dados de Monlevade: ${error.message}`, 'error');
+                });
+        }
+        
+        function testServer() {
+            log('Testando servidor local...');
+            
+            fetch('index.html')
+                .then(response => {
+                    log(`Resposta do servidor para index.html: ${response.status} ${response.statusText}`);
+                    if (response.ok) {
+                        log('✅ Servidor local está funcionando');
+                        updateStatus('✅ Servidor local está funcionando corretamente', 'success');
+                    } else {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Erro no servidor local: ${error.message}`, 'error');
+                    updateStatus('❌ Servidor local não está funcionando. Execute o servidor primeiro.', 'error');
+                });
+        }
+        
+        // Executar testes automáticos quando a página carregar
+        window.addEventListener('load', function() {
+            log('Página carregada, iniciando diagnósticos...');
+            setTimeout(() => testLeaflet(), 1000);
+            setTimeout(() => testServer(), 2000);
+        });
+    </script>
+</body>
+</html> 
