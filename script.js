@@ -3,6 +3,7 @@ let map;
 let currentBaseMap = 'streetmap';
 let imoveisLayer;
 let monlevadeLayer;
+let nascentesLayer;
 
 // Configuração dos mapas base
 const baseMaps = {
@@ -124,6 +125,35 @@ function loadDataLayers() {
         }
     });
 
+    // Camada de Nascentes
+    nascentesLayer = L.geoJSON(null, {
+        pointToLayer: function(feature, latlng) {
+            return L.circleMarker(latlng, {
+                radius: 8,
+                fillColor: '#00ff44',
+                color: '#00aa00',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+        },
+        onEachFeature: function(feature, layer) {
+            if (feature.properties) {
+                let popupContent = '<div style="max-width: 300px;">';
+                popupContent += '<h6><i class="fas fa-tint"></i> Nascente</h6>';
+                
+                for (let prop in feature.properties) {
+                    if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
+                        popupContent += `<p><strong>${prop}:</strong> ${feature.properties[prop]}</p>`;
+                    }
+                }
+                popupContent += '</div>';
+                
+                layer.bindPopup(popupContent);
+            }
+        }
+    });
+
     // Carregar dados GeoJSON
     loadGeoJSONData();
 }
@@ -195,6 +225,33 @@ function loadGeoJSONData() {
             console.error('Erro ao carregar dados de Monlevade:', error);
             showError(`Erro ao carregar dados de Monlevade: ${error.message}`);
         });
+
+    // Carregar dados de Nascentes
+    fetch('data/Nascentes.geojson')
+        .then(response => {
+            console.log('Resposta do servidor para nascentes:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados de nascentes carregados:', data.features ? data.features.length : 0, 'features');
+            
+            if (!data || !data.features) {
+                throw new Error('Formato de dados inválido para nascentes');
+            }
+            
+            nascentesLayer.addData(data);
+            nascentesLayer.addTo(map);
+            
+            // Mostrar sucesso
+            showSuccess('Camada de Nascentes carregada com sucesso!');
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados de nascentes:', error);
+            showError(`Erro ao carregar dados de nascentes: ${error.message}`);
+        });
 }
 
 // Configurar controles de camada
@@ -213,6 +270,14 @@ function setupLayerControls() {
             map.addLayer(monlevadeLayer);
         } else {
             map.removeLayer(monlevadeLayer);
+        }
+    });
+
+    document.getElementById('nascentesLayer').addEventListener('change', function() {
+        if (this.checked) {
+            map.addLayer(nascentesLayer);
+        } else {
+            map.removeLayer(nascentesLayer);
         }
     });
 }

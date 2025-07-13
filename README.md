@@ -39,7 +39,8 @@ GISWEB/
 ├── package.json            # Configurações do projeto
 ├── data/
 │   ├── imoveis.geojson     # Dados de imóveis
-│   └── Monlevade.geojson   # Limites municipais
+│   ├── Monlevade.geojson   # Limites municipais
+│   └── Nascentes.geojson   # Dados de nascentes
 ├── diagnostico.html        # Página de diagnóstico
 ├── teste-mapa-simples.html # Teste simplificado
 ├── abrir-pagina.html       # Página de ajuda
@@ -74,6 +75,7 @@ GISWEB/
 ### Camadas de Dados
 - **Imóveis:** Dados georreferenciados de imóveis
 - **Monlevade:** Limites municipais
+- **Nascentes:** Pontos de nascentes com informações de qualidade e vazão
 
 ### Ferramentas
 - **Navegação:** Zoom, pan, centralizar
@@ -101,6 +103,11 @@ GISWEB/
 - **Arquivo:** `data/Monlevade.geojson`
 - **Tipo:** Polígonos de limites
 - **Estilo:** Azul com transparência
+
+### Nascentes
+- **Arquivo:** `data/Nascentes.geojson`
+- **Tipo:** Pontos georreferenciados
+- **Estilo:** Verde com círculos
 
 ## 🛠️ Desenvolvimento
 

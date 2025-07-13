@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "nome": "Nascente Olho D'Água",
+        "tipo": "Nascente",
+        "status": "Ativa",
+        "vazao": "2.5 L/min",
+        "qualidade": "Boa",
+        "observacoes": "Nascente natural preservada"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-43.1736, -19.8236]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "nome": "Nascente Ribeirão",
+        "tipo": "Nascente",
+        "status": "Ativa",
+        "vazao": "1.8 L/min",
+        "qualidade": "Regular",
+        "observacoes": "Nascente em área rural"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-43.1750, -19.8250]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "nome": "Nascente Serra",
+        "tipo": "Nascente",
+        "status": "Ativa",
+        "vazao": "3.2 L/min",
+        "qualidade": "Excelente",
+        "observacoes": "Nascente em área de preservação"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-43.1720, -19.8200]
+      }
+    }
+  ]
+} 
