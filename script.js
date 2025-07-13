@@ -4,6 +4,7 @@ let currentBaseMap = 'streetmap';
 let ruasLayer;
 let monlevadeLayer;
 let nascentesLayer;
+let bairrosLayer;
 
 // Configuração dos mapas base
 const baseMaps = {
@@ -234,6 +235,42 @@ function loadDataLayers() {
         }
     });
 
+    // Camada de Bairros
+    bairrosLayer = L.geoJSON(null, {
+        style: function(feature) {
+            return {
+                fillColor: '#e67e22',
+                weight: 2,
+                opacity: 1,
+                color: '#b35400',
+                fillOpacity: 0.3
+            };
+        },
+        onEachFeature: function(feature, layer) {
+            if (feature.properties) {
+                let popupContent = '<div style="max-width: 350px; font-family: Arial, sans-serif;">';
+                popupContent += '<div style="background: linear-gradient(135deg, #e67e22, #b35400); color: white; padding: 10px; margin: -10px -10px 10px -10px; border-radius: 5px 5px 0 0;">';
+                popupContent += '<h6 style="margin: 0; font-weight: 600;"><i class="fas fa-city"></i> Informações do Bairro</h6>';
+                popupContent += '</div>';
+                for (let prop in feature.properties) {
+                    if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
+                        const value = feature.properties[prop];
+                        const formattedValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+                        popupContent += `<div style="margin-bottom: 8px; padding: 5px; background: #f8f9fa; border-radius: 3px;">`;
+                        popupContent += `<strong style="color: #495057;">${prop.charAt(0).toUpperCase() + prop.slice(1)}:</strong> `;
+                        popupContent += `<span style="color: #6c757d;">${formattedValue}</span>`;
+                        popupContent += `</div>`;
+                    }
+                }
+                popupContent += '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">';
+                popupContent += '<i class="fas fa-info-circle"></i> Clique fora para fechar';
+                popupContent += '</div>';
+                popupContent += '</div>';
+                layer.bindPopup(popupContent, { maxWidth: 350, className: 'custom-popup' });
+            }
+        }
+    });
+
     // Carregar dados GeoJSON
     loadGeoJSONData();
 }
@@ -359,6 +396,18 @@ function loadGeoJSONData() {
             console.error('Erro ao carregar dados de nascentes:', error);
             showError(`Erro ao carregar dados de nascentes: ${error.message}`);
         });
+
+    // Carregar dados de bairros
+    fetch('data/Informaçoes Bairros.geojson')
+        .then(response => response.json())
+        .then(data => {
+            bairrosLayer.addData(data);
+            bairrosLayer.addTo(map);
+            showSuccess('Camada de Bairros carregada com sucesso!');
+        })
+        .catch(error => {
+            showError('Erro ao carregar dados de bairros: ' + error.message);
+        });
 }
 
 // Configurar controles de camada
@@ -385,6 +434,14 @@ function setupLayerControls() {
             map.addLayer(nascentesLayer);
         } else {
             map.removeLayer(nascentesLayer);
+        }
+    });
+
+    document.getElementById('bairrosLayer').addEventListener('change', function() {
+        if (this.checked) {
+            map.addLayer(bairrosLayer);
+        } else {
+            map.removeLayer(bairrosLayer);
         }
     });
 }
@@ -606,6 +663,7 @@ function checkLayerStatus() {
     
     let stats = {
         ruas: 0,
+        bairros: 0,
         monlevade: 0,
         nascentes: 0
     };
@@ -617,6 +675,13 @@ function checkLayerStatus() {
         console.warn('⚠️ Camada de Ruas: Não carregada ou vazia');
     }
     
+    if (bairrosLayer && bairrosLayer.getLayers().length > 0) {
+        stats.bairros = bairrosLayer.getLayers().length;
+        console.log('✅ Camada de Bairros: Carregada com', stats.bairros, 'features');
+    } else {
+        console.warn('⚠️ Camada de Bairros: Não carregada ou vazia');
+    }
+
     if (monlevadeLayer && monlevadeLayer.getLayers().length > 0) {
         stats.monlevade = monlevadeLayer.getLayers().length;
         console.log('✅ Camada de Monlevade: Carregada com', stats.monlevade, 'features');
@@ -639,9 +704,10 @@ function checkLayerStatus() {
 function updateLayerStats(stats) {
     const statsContent = document.getElementById('stats-content');
     if (statsContent) {
-        const total = stats.ruas + stats.monlevade + stats.nascentes;
+        const total = stats.ruas + stats.bairros + stats.monlevade + stats.nascentes;
         statsContent.innerHTML = `
             <div>🛣️ Ruas: ${stats.ruas.toLocaleString()}</div>
+            <div>🏙️ Bairros: ${stats.bairros.toLocaleString()}</div>
             <div>🗺️ Monlevade: ${stats.monlevade.toLocaleString()}</div>
             <div>💧 Nascentes: ${stats.nascentes.toLocaleString()}</div>
             <div style="margin-top: 5px; font-weight: 600; color: #007bff;">
@@ -701,6 +767,10 @@ function reloadLayers() {
     if (nascentesLayer) {
         map.removeLayer(nascentesLayer);
         nascentesLayer.clearLayers();
+    }
+    if (bairrosLayer) {
+        map.removeLayer(bairrosLayer);
+        bairrosLayer.clearLayers();
     }
     
     // Recarregar dados

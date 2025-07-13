@@ -41,6 +41,7 @@ GISWEB/
 ├── package.json            # Configurações do projeto
 ├── data/
 │   ├── RUAS.geojson        # Dados da malha viária
+│   ├── Informaçoes Bairros.geojson # Dados dos bairros
 │   ├── Monlevade.geojson   # Limites municipais
 │   └── Nascentes.geojson   # Dados de nascentes
 ├── diagnostico.html        # Página de diagnóstico
@@ -80,6 +81,7 @@ GISWEB/
 
 ### Camadas de Dados
 - **Ruas:** Dados georreferenciados da malha viária
+- **Bairros:** Informações dos bairros
 - **Monlevade:** Limites municipais
 - **Nascentes:** Pontos de nascentes com informações de qualidade e vazão
 
@@ -116,6 +118,11 @@ GISWEB/
 - **Tipo:** Pontos georreferenciados
 - **Estilo:** Verde com círculos
 
+### Bairros
+- **Arquivo:** `data/Informaçoes Bairros.geojson`
+- **Tipo:** Polígonos de bairros
+- **Estilo:** Laranja escuro com transparência
+
 ## 🛠️ Desenvolvimento
 
 ### Estrutura do Código
@@ -139,6 +146,7 @@ GISWEB/
 - ✅ Popups informativos modernos
 - ✅ Formatação de dados em português
 - ✅ Atualização automática de estatísticas
+- ✅ Camada de bairros adicionada
 
 ## 🌍 Acesso Online
 
