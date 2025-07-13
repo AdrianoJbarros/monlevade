@@ -1,6 +1,14 @@
 # Changelog - WebGIS Monlevade
 
-## [2.0.0] - 2025-07-13
+## [2.1.0] - 2025-07-13
+
+### 📱 Modo Mobile/Desktop
+- **Toggle de visualização:** Botão para alternar entre modo mobile e desktop
+- **Detecção automática:** Sistema detecta automaticamente o tipo de dispositivo
+- **Preferências salvas:** Lembra a escolha do usuário entre sessões
+- **Interface adaptativa:** Layout otimizado para cada tipo de dispositivo
+- **Indicador visual:** Mostra o modo ativo com notificação temporária
+- **Teclas de atalho:** Teclas 'M' e 'D' para alternar rapidamente
 
 ### ✨ Melhorias nas Legendas
 - **Design aprimorado:** Legendas com bordas, sombras e efeitos hover

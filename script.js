@@ -650,6 +650,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 30000); // Atualizar a cada 30 segundos
         
+        // Configurar modo de visualização
+        setTimeout(() => {
+            const savedPreference = loadViewPreference();
+            if (savedPreference) {
+                toggleViewMode(savedPreference);
+            } else {
+                detectDeviceType();
+            }
+        }, 1000);
+        
         console.log('Aplicação inicializada com sucesso');
     } catch (error) {
         console.error('Erro na inicialização da aplicação:', error);
@@ -798,5 +808,109 @@ document.addEventListener('keydown', function(e) {
         case 'R':
             reloadLayers();
             break;
+        case 'm':
+        case 'M':
+            toggleViewMode('mobile');
+            break;
+        case 'd':
+        case 'D':
+            toggleViewMode('desktop');
+            break;
     }
-}); 
+});
+
+// Função para alternar entre modo mobile e desktop
+function toggleViewMode(mode) {
+    const body = document.body;
+    const desktopBtn = document.getElementById('desktopBtn');
+    const mobileBtn = document.getElementById('mobileBtn');
+    const modeIndicator = document.getElementById('modeIndicator');
+    
+    // Remover classes existentes
+    body.classList.remove('mobile-mode', 'desktop-mode');
+    
+    if (mode === 'mobile') {
+        // Ativar modo mobile
+        body.classList.add('mobile-mode');
+        desktopBtn.classList.remove('active');
+        mobileBtn.classList.add('active');
+        
+        // Atualizar indicador
+        modeIndicator.innerHTML = '<i class="fas fa-mobile-alt"></i> Modo Mobile Ativo';
+        modeIndicator.classList.add('show');
+        
+        // Mostrar notificação
+        showSuccess('Modo Mobile ativado! Interface otimizada para dispositivos móveis.');
+        
+        console.log('Modo Mobile ativado');
+    } else {
+        // Ativar modo desktop
+        body.classList.add('desktop-mode');
+        mobileBtn.classList.remove('active');
+        desktopBtn.classList.add('active');
+        
+        // Atualizar indicador
+        modeIndicator.innerHTML = '<i class="fas fa-desktop"></i> Modo Desktop Ativo';
+        modeIndicator.classList.add('show');
+        
+        // Mostrar notificação
+        showSuccess('Modo Desktop ativado! Interface otimizada para computadores.');
+        
+        console.log('Modo Desktop ativado');
+    }
+    
+    // Esconder indicador após 3 segundos
+    setTimeout(() => {
+        modeIndicator.classList.remove('show');
+    }, 3000);
+    
+    // Salvar preferência do usuário
+    saveViewPreference(mode);
+    
+    // Invalidar tamanho do mapa para ajustar ao novo layout
+    if (map) {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    }
+}
+
+// Função para detectar automaticamente o tipo de dispositivo
+function detectDeviceType() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /mobile|android|iphone|ipad|phone|tablet/i.test(userAgent);
+    const screenWidth = window.innerWidth;
+    
+    // Se for dispositivo móvel ou tela pequena, ativar modo mobile automaticamente
+    if (isMobile || screenWidth <= 768) {
+        console.log('Dispositivo móvel detectado, ativando modo mobile automaticamente');
+        toggleViewMode('mobile');
+    } else {
+        console.log('Dispositivo desktop detectado, ativando modo desktop automaticamente');
+        toggleViewMode('desktop');
+    }
+}
+
+// Função para salvar preferência do usuário
+function saveViewPreference(mode) {
+    try {
+        localStorage.setItem('webgis-view-mode', mode);
+        console.log('Preferência de visualização salva:', mode);
+    } catch (error) {
+        console.warn('Não foi possível salvar preferência:', error);
+    }
+}
+
+// Função para carregar preferência do usuário
+function loadViewPreference() {
+    try {
+        const savedMode = localStorage.getItem('webgis-view-mode');
+        if (savedMode) {
+            console.log('Carregando preferência salva:', savedMode);
+            return savedMode;
+        }
+    } catch (error) {
+        console.warn('Não foi possível carregar preferência:', error);
+    }
+    return null;
+} 

@@ -157,6 +157,135 @@
         .custom-popup .leaflet-popup-tip {
             background: white;
         }
+        
+        /* Estilos para modo mobile */
+        .mobile-mode .map-controls {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            top: auto;
+            left: auto;
+            max-width: 200px;
+            max-height: 60vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .mobile-mode .info-panel {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            top: auto;
+            max-width: 200px;
+            max-height: 40vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .mobile-mode .legend {
+            max-height: 30vh;
+            overflow-y: auto;
+        }
+        
+        .mobile-mode .btn-map {
+            font-size: 12px;
+            padding: 6px 8px;
+        }
+        
+        .mobile-mode .layer-control h6 {
+            font-size: 14px;
+        }
+        
+        .mobile-mode .form-check-label {
+            font-size: 12px;
+        }
+        
+        /* Botão de toggle mobile/desktop */
+        .view-toggle {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1001;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .view-toggle .btn-toggle {
+            background: none;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-toggle .btn-toggle.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .view-toggle .btn-toggle:not(.active) {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .view-toggle .btn-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Indicador de modo atual */
+        .mode-indicator {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 123, 255, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .mode-indicator.show {
+            opacity: 1;
+        }
+        
+        /* Responsividade geral */
+        @media (max-width: 768px) {
+            .map-controls {
+                max-width: 180px;
+            }
+            
+            .info-panel {
+                max-width: 180px;
+            }
+            
+            .legend-item {
+                font-size: 12px;
+            }
+            
+            .legend-color {
+                width: 20px;
+                height: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -166,6 +295,22 @@
     <div id="loading" class="loading">
         <div class="spinner"></div>
         <p>Carregando mapas...</p>
+    </div>
+    
+    <!-- Toggle de Visualização Mobile/Desktop -->
+    <div class="view-toggle">
+        <span><i class="fas fa-desktop"></i></span>
+        <button class="btn-toggle active" onclick="toggleViewMode('desktop')" id="desktopBtn">
+            <i class="fas fa-desktop"></i> Desktop
+        </button>
+        <button class="btn-toggle" onclick="toggleViewMode('mobile')" id="mobileBtn">
+            <i class="fas fa-mobile-alt"></i> Mobile
+        </button>
+    </div>
+    
+    <!-- Indicador de Modo -->
+    <div class="mode-indicator" id="modeIndicator">
+        <i class="fas fa-desktop"></i> Modo Desktop Ativo
     </div>
     
     <!-- Info Panel -->
@@ -269,6 +414,12 @@
             </button>
             <button class="btn btn-sm btn-outline-secondary" onclick="reloadLayers()">
                 <i class="fas fa-sync-alt"></i> Recarregar
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="toggleViewMode('mobile')" title="Alternar para modo mobile">
+                <i class="fas fa-mobile-alt"></i> Mobile
+            </button>
+            <button class="btn btn-sm btn-outline-info" onclick="toggleViewMode('desktop')" title="Alternar para modo desktop">
+                <i class="fas fa-desktop"></i> Desktop
             </button>
         </div>
     </div>
