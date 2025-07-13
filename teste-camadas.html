@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Camadas - WebGIS</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .test-card {
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status-success {
+            color: #28a745;
+        }
+        
+        .status-error {
+            color: #dc3545;
+        }
+        
+        .status-warning {
+            color: #ffc107;
+        }
+        
+        .log-container {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-layer-group"></i> Teste de Camadas - WebGIS</h1>
+        <p class="text-muted">Verificação do status das camadas do sistema</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card test-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-road"></i> Camada de Ruas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="ruas-status">Verificando...</div>
+                        <div id="ruas-log" class="log-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card test-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-map"></i> Camada de Monlevade</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="monlevade-status">Verificando...</div>
+                        <div id="monlevade-log" class="log-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card test-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-tint"></i> Camada de Nascentes</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="nascentes-status">Verificando...</div>
+                        <div id="nascentes-log" class="log-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card test-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cogs"></i> Sistema</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="system-status">Verificando...</div>
+                        <div id="system-log" class="log-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card test-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-play"></i> Ações</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="runTests()">
+                            <i class="fas fa-sync-alt"></i> Executar Testes
+                        </button>
+                        <button class="btn btn-success" onclick="window.open('index.html', '_blank')">
+                            <i class="fas fa-external-link-alt"></i> Abrir WebGIS
+                        </button>
+                        <button class="btn btn-info" onclick="clearLogs()">
+                            <i class="fas fa-trash"></i> Limpar Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function log(message, type = 'info', containerId = 'system-log') {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            
+            if (type === 'error') {
+                logEntry.className = 'status-error';
+            } else if (type === 'success') {
+                logEntry.className = 'status-success';
+            } else if (type === 'warning') {
+                logEntry.className = 'status-warning';
+            }
+            
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function updateStatus(status, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = status;
+        }
+        
+        async function testLayer(layerName, fileName, containerId) {
+            log(`Iniciando teste da camada ${layerName}...`, 'info', containerId);
+            
+            try {
+                const response = await fetch(`data/${fileName}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || !data.features) {
+                    throw new Error('Formato de dados inválido');
+                }
+                
+                const featureCount = data.features.length;
+                log(`✅ ${layerName} carregada com sucesso!`, 'success', containerId);
+                log(`📊 Features encontradas: ${featureCount}`, 'info', containerId);
+                
+                if (featureCount > 0) {
+                    const firstFeature = data.features[0];
+                    if (firstFeature.properties) {
+                        const propCount = Object.keys(firstFeature.properties).length;
+                        log(`📋 Propriedades por feature: ${propCount}`, 'info', containerId);
+                    }
+                }
+                
+                updateStatus(`<span class="status-success">✅ Carregada (${featureCount} features)</span>`, containerId);
+                
+            } catch (error) {
+                log(`❌ Erro ao carregar ${layerName}: ${error.message}`, 'error', containerId);
+                updateStatus(`<span class="status-error">❌ Erro: ${error.message}</span>`, containerId);
+            }
+        }
+        
+        async function runTests() {
+            log('Iniciando testes de camadas...', 'info', 'system-log');
+            
+            // Testar camadas
+            await testLayer('Ruas', 'RUAS.geojson', 'ruas-log');
+            await testLayer('Monlevade', 'Monlevade.geojson', 'monlevade-log');
+            await testLayer('Nascentes', 'Nascentes.geojson', 'nascentes-log');
+            
+            // Testar sistema
+            log('Verificando componentes do sistema...', 'info', 'system-log');
+            
+            // Testar se o servidor está rodando
+            try {
+                const response = await fetch('index.html');
+                if (response.ok) {
+                    log('✅ Servidor web funcionando', 'success', 'system-log');
+                } else {
+                    log('⚠️ Servidor web com problemas', 'warning', 'system-log');
+                }
+            } catch (error) {
+                log('❌ Erro ao acessar servidor web', 'error', 'system-log');
+            }
+            
+            // Verificar arquivos
+            const files = ['index.html', 'script.js', 'data/RUAS.geojson', 'data/Monlevade.geojson', 'data/Nascentes.geojson'];
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        log(`✅ ${file} acessível`, 'success', 'system-log');
+                    } else {
+                        log(`❌ ${file} não acessível`, 'error', 'system-log');
+                    }
+                } catch (error) {
+                    log(`❌ Erro ao acessar ${file}`, 'error', 'system-log');
+                }
+            }
+            
+            log('Testes concluídos!', 'success', 'system-log');
+            updateStatus('<span class="status-success">✅ Testes concluídos</span>', 'system-status');
+        }
+        
+        function clearLogs() {
+            const containers = ['ruas-log', 'monlevade-log', 'nascentes-log', 'system-log'];
+            containers.forEach(id => {
+                document.getElementById(id).innerHTML = '';
+            });
+            
+            const statusContainers = ['ruas-status', 'monlevade-status', 'nascentes-status', 'system-status'];
+            statusContainers.forEach(id => {
+                document.getElementById(id).innerHTML = 'Verificando...';
+            });
+        }
+        
+        // Executar testes automaticamente ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html> 

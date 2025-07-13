@@ -1,7 +1,7 @@
 // Variáveis globais
 let map;
 let currentBaseMap = 'streetmap';
-let imoveisLayer;
+let ruasLayer;
 let monlevadeLayer;
 let nascentesLayer;
 
@@ -69,30 +69,63 @@ function initMap() {
 
 // Carregar camadas de dados
 function loadDataLayers() {
-    // Camada de Imóveis
-    imoveisLayer = L.geoJSON(null, {
+    // Camada de Ruas
+    ruasLayer = L.geoJSON(null, {
         style: function(feature) {
             return {
-                fillColor: '#ff4444',
+                fillColor: '#ff8800',
                 weight: 2,
-                opacity: 1,
-                color: '#ff0000',
+                opacity: 0.8,
+                color: '#ff6600',
                 fillOpacity: 0.3
             };
         },
         onEachFeature: function(feature, layer) {
             if (feature.properties) {
-                let popupContent = '<div style="max-width: 300px;">';
-                popupContent += '<h6><i class="fas fa-home"></i> Imóvel</h6>';
-                
-                for (let prop in feature.properties) {
-                    if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
-                        popupContent += `<p><strong>${prop}:</strong> ${feature.properties[prop]}</p>`;
-                    }
-                }
+                let popupContent = '<div style="max-width: 350px; font-family: Arial, sans-serif;">';
+                popupContent += '<div style="background: linear-gradient(135deg, #ff8800, #ff6600); color: white; padding: 10px; margin: -10px -10px 10px -10px; border-radius: 5px 5px 0 0;">';
+                popupContent += '<h6 style="margin: 0; font-weight: 600;"><i class="fas fa-road"></i> Informações da Rua</h6>';
                 popupContent += '</div>';
                 
-                layer.bindPopup(popupContent);
+                // Mostrar apenas propriedades importantes
+                const importantProps = ['name', 'nome', 'rua', 'street', 'tipo', 'type', 'length', 'comprimento'];
+                let hasImportantProps = false;
+                
+                for (let prop of importantProps) {
+                    if (feature.properties[prop] && feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
+                        const value = feature.properties[prop];
+                        const formattedValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+                        popupContent += `<div style="margin-bottom: 8px; padding: 5px; background: #f8f9fa; border-radius: 3px;">`;
+                        popupContent += `<strong style="color: #495057;">${prop.charAt(0).toUpperCase() + prop.slice(1)}:</strong> `;
+                        popupContent += `<span style="color: #6c757d;">${formattedValue}</span>`;
+                        popupContent += `</div>`;
+                        hasImportantProps = true;
+                    }
+                }
+                
+                // Se não encontrou propriedades importantes, mostrar todas
+                if (!hasImportantProps) {
+                    for (let prop in feature.properties) {
+                        if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
+                            const value = feature.properties[prop];
+                            const formattedValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+                            popupContent += `<div style="margin-bottom: 8px; padding: 5px; background: #f8f9fa; border-radius: 3px;">`;
+                            popupContent += `<strong style="color: #495057;">${prop.charAt(0).toUpperCase() + prop.slice(1)}:</strong> `;
+                            popupContent += `<span style="color: #6c757d;">${formattedValue}</span>`;
+                            popupContent += `</div>`;
+                        }
+                    }
+                }
+                
+                popupContent += '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">';
+                popupContent += '<i class="fas fa-info-circle"></i> Clique fora para fechar';
+                popupContent += '</div>';
+                popupContent += '</div>';
+                
+                layer.bindPopup(popupContent, {
+                    maxWidth: 350,
+                    className: 'custom-popup'
+                });
             }
         }
     });
@@ -110,17 +143,31 @@ function loadDataLayers() {
         },
         onEachFeature: function(feature, layer) {
             if (feature.properties) {
-                let popupContent = '<div style="max-width: 300px;">';
-                popupContent += '<h6><i class="fas fa-map"></i> Monlevade</h6>';
+                let popupContent = '<div style="max-width: 350px; font-family: Arial, sans-serif;">';
+                popupContent += '<div style="background: linear-gradient(135deg, #4444ff, #0000ff); color: white; padding: 10px; margin: -10px -10px 10px -10px; border-radius: 5px 5px 0 0;">';
+                popupContent += '<h6 style="margin: 0; font-weight: 600;"><i class="fas fa-map"></i> Informações de Monlevade</h6>';
+                popupContent += '</div>';
                 
                 for (let prop in feature.properties) {
                     if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
-                        popupContent += `<p><strong>${prop}:</strong> ${feature.properties[prop]}</p>`;
+                        const value = feature.properties[prop];
+                        const formattedValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+                        popupContent += `<div style="margin-bottom: 8px; padding: 5px; background: #f8f9fa; border-radius: 3px;">`;
+                        popupContent += `<strong style="color: #495057;">${prop.charAt(0).toUpperCase() + prop.slice(1)}:</strong> `;
+                        popupContent += `<span style="color: #6c757d;">${formattedValue}</span>`;
+                        popupContent += `</div>`;
                     }
                 }
+                
+                popupContent += '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">';
+                popupContent += '<i class="fas fa-info-circle"></i> Clique fora para fechar';
+                popupContent += '</div>';
                 popupContent += '</div>';
                 
-                layer.bindPopup(popupContent);
+                layer.bindPopup(popupContent, {
+                    maxWidth: 350,
+                    className: 'custom-popup'
+                });
             }
         }
     });
@@ -139,17 +186,50 @@ function loadDataLayers() {
         },
         onEachFeature: function(feature, layer) {
             if (feature.properties) {
-                let popupContent = '<div style="max-width: 300px;">';
-                popupContent += '<h6><i class="fas fa-tint"></i> Nascente</h6>';
-                
-                for (let prop in feature.properties) {
-                    if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
-                        popupContent += `<p><strong>${prop}:</strong> ${feature.properties[prop]}</p>`;
-                    }
-                }
+                let popupContent = '<div style="max-width: 350px; font-family: Arial, sans-serif;">';
+                popupContent += '<div style="background: linear-gradient(135deg, #00ff44, #00aa00); color: white; padding: 10px; margin: -10px -10px 10px -10px; border-radius: 5px 5px 0 0;">';
+                popupContent += '<h6 style="margin: 0; font-weight: 600;"><i class="fas fa-tint"></i> Informações da Nascente</h6>';
                 popupContent += '</div>';
                 
-                layer.bindPopup(popupContent);
+                // Mostrar propriedades importantes primeiro
+                const importantProps = ['name', 'nome', 'qualidade', 'vazao', 'tipo', 'type', 'status'];
+                let hasImportantProps = false;
+                
+                for (let prop of importantProps) {
+                    if (feature.properties[prop] && feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
+                        const value = feature.properties[prop];
+                        const formattedValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+                        popupContent += `<div style="margin-bottom: 8px; padding: 5px; background: #f8f9fa; border-radius: 3px;">`;
+                        popupContent += `<strong style="color: #495057;">${prop.charAt(0).toUpperCase() + prop.slice(1)}:</strong> `;
+                        popupContent += `<span style="color: #6c757d;">${formattedValue}</span>`;
+                        popupContent += `</div>`;
+                        hasImportantProps = true;
+                    }
+                }
+                
+                // Se não encontrou propriedades importantes, mostrar todas
+                if (!hasImportantProps) {
+                    for (let prop in feature.properties) {
+                        if (feature.properties[prop] !== null && feature.properties[prop] !== undefined) {
+                            const value = feature.properties[prop];
+                            const formattedValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+                            popupContent += `<div style="margin-bottom: 8px; padding: 5px; background: #f8f9fa; border-radius: 3px;">`;
+                            popupContent += `<strong style="color: #495057;">${prop.charAt(0).toUpperCase() + prop.slice(1)}:</strong> `;
+                            popupContent += `<span style="color: #6c757d;">${formattedValue}</span>`;
+                            popupContent += `</div>`;
+                        }
+                    }
+                }
+                
+                popupContent += '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d;">';
+                popupContent += '<i class="fas fa-info-circle"></i> Clique fora para fechar';
+                popupContent += '</div>';
+                popupContent += '</div>';
+                
+                layer.bindPopup(popupContent, {
+                    maxWidth: 350,
+                    className: 'custom-popup'
+                });
             }
         }
     });
@@ -162,41 +242,68 @@ function loadDataLayers() {
 function loadGeoJSONData() {
     console.log('Iniciando carregamento das camadas...');
     
-    // Carregar dados de imóveis
-    fetch('data/imoveis.geojson')
+    // Carregar dados de ruas
+    fetch('data/RUAS.geojson')
         .then(response => {
-            console.log('Resposta do servidor para imóveis:', response.status, response.statusText);
+            console.log('Resposta do servidor para ruas:', response.status, response.statusText);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Dados de imóveis carregados:', data.features ? data.features.length : 0, 'features');
+            console.log('Dados de ruas carregados:', data.features ? data.features.length : 0, 'features');
             
             if (!data || !data.features) {
-                throw new Error('Formato de dados inválido para imóveis');
+                throw new Error('Formato de dados inválido para ruas');
             }
             
-            imoveisLayer.addData(data);
-            imoveisLayer.addTo(map);
+            // Adicionar dados em lotes para melhor performance
+            const batchSize = 1000;
+            const totalFeatures = data.features.length;
             
-            // Ajustar view para os dados
-            if (data.features && data.features.length > 0) {
-                try {
-                    map.fitBounds(imoveisLayer.getBounds());
-                    console.log('View ajustada para os dados de imóveis');
-                } catch (boundsError) {
-                    console.warn('Erro ao ajustar bounds:', boundsError);
+            console.log(`Processando ${totalFeatures} features em lotes de ${batchSize}...`);
+            
+            for (let i = 0; i < totalFeatures; i += batchSize) {
+                const batch = data.features.slice(i, i + batchSize);
+                const batchData = {
+                    type: 'FeatureCollection',
+                    features: batch
+                };
+                
+                setTimeout(() => {
+                    ruasLayer.addData(batchData);
+                }, (i / batchSize) * 100);
+            }
+            
+            // Adicionar camada ao mapa após processamento
+            setTimeout(() => {
+                ruasLayer.addTo(map);
+                
+                // Ajustar view para os dados
+                if (data.features && data.features.length > 0) {
+                    try {
+                        const bounds = ruasLayer.getBounds();
+                        if (bounds.isValid()) {
+                            map.fitBounds(bounds, { padding: [20, 20] });
+                            console.log('View ajustada para os dados de ruas');
+                        } else {
+                            console.warn('Bounds inválidos para ruas, usando view padrão');
+                            map.setView([-19.8236, -43.1736], 12);
+                        }
+                    } catch (boundsError) {
+                        console.warn('Erro ao ajustar bounds:', boundsError);
+                        map.setView([-19.8236, -43.1736], 12);
+                    }
                 }
-            }
-            
-            // Mostrar sucesso
-            showSuccess('Camada de Imóveis carregada com sucesso!');
+                
+                // Mostrar sucesso
+                showSuccess(`Camada de Ruas carregada com ${totalFeatures} features!`);
+            }, (totalFeatures / batchSize) * 100 + 500);
         })
         .catch(error => {
-            console.error('Erro ao carregar dados de imóveis:', error);
-            showError(`Erro ao carregar dados de imóveis: ${error.message}`);
+            console.error('Erro ao carregar dados de ruas:', error);
+            showError(`Erro ao carregar dados de ruas: ${error.message}`);
         });
 
     // Carregar dados de Monlevade
@@ -257,11 +364,11 @@ function loadGeoJSONData() {
 // Configurar controles de camada
 function setupLayerControls() {
     // Controle de camadas de dados
-    document.getElementById('imoveisLayer').addEventListener('change', function() {
+    document.getElementById('ruasLayer').addEventListener('change', function() {
         if (this.checked) {
-            map.addLayer(imoveisLayer);
+            map.addLayer(ruasLayer);
         } else {
-            map.removeLayer(imoveisLayer);
+            map.removeLayer(ruasLayer);
         }
     });
 
@@ -308,8 +415,8 @@ function updateBaseMapButtons(activeMap) {
 
 // Resetar view do mapa
 function resetView() {
-    if (imoveisLayer && imoveisLayer.getBounds) {
-        map.fitBounds(imoveisLayer.getBounds());
+    if (ruasLayer && ruasLayer.getBounds) {
+        map.fitBounds(ruasLayer.getBounds());
     } else {
         map.setView([-19.8236, -43.1736], 12);
     }
@@ -406,13 +513,13 @@ function addMapFeatures() {
 
 // Função para exportar dados
 function exportData() {
-    if (imoveisLayer) {
-        const data = imoveisLayer.toGeoJSON();
+    if (ruasLayer) {
+        const data = ruasLayer.toGeoJSON();
         const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'imoveis_export.json';
+        a.download = 'ruas_export.json';
         a.click();
         URL.revokeObjectURL(url);
     }
@@ -474,12 +581,75 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         });
         
+        // Verificar status das camadas após carregamento
+        setTimeout(() => {
+            checkLayerStatus();
+        }, 3000);
+        
+        // Atualizar estatísticas periodicamente
+        setInterval(() => {
+            if (map) {
+                checkLayerStatus();
+            }
+        }, 30000); // Atualizar a cada 30 segundos
+        
         console.log('Aplicação inicializada com sucesso');
     } catch (error) {
         console.error('Erro na inicialização da aplicação:', error);
         showError(`Erro na inicialização: ${error.message}`);
     }
 });
+
+// Função para verificar status das camadas
+function checkLayerStatus() {
+    console.log('Verificando status das camadas...');
+    
+    let stats = {
+        ruas: 0,
+        monlevade: 0,
+        nascentes: 0
+    };
+    
+    if (ruasLayer && ruasLayer.getLayers().length > 0) {
+        stats.ruas = ruasLayer.getLayers().length;
+        console.log('✅ Camada de Ruas: Carregada com', stats.ruas, 'features');
+    } else {
+        console.warn('⚠️ Camada de Ruas: Não carregada ou vazia');
+    }
+    
+    if (monlevadeLayer && monlevadeLayer.getLayers().length > 0) {
+        stats.monlevade = monlevadeLayer.getLayers().length;
+        console.log('✅ Camada de Monlevade: Carregada com', stats.monlevade, 'features');
+    } else {
+        console.warn('⚠️ Camada de Monlevade: Não carregada ou vazia');
+    }
+    
+    if (nascentesLayer && nascentesLayer.getLayers().length > 0) {
+        stats.nascentes = nascentesLayer.getLayers().length;
+        console.log('✅ Camada de Nascentes: Carregada com', stats.nascentes, 'features');
+    } else {
+        console.warn('⚠️ Camada de Nascentes: Não carregada ou vazia');
+    }
+    
+    // Atualizar estatísticas na interface
+    updateLayerStats(stats);
+}
+
+// Função para atualizar estatísticas das camadas
+function updateLayerStats(stats) {
+    const statsContent = document.getElementById('stats-content');
+    if (statsContent) {
+        const total = stats.ruas + stats.monlevade + stats.nascentes;
+        statsContent.innerHTML = `
+            <div>🛣️ Ruas: ${stats.ruas.toLocaleString()}</div>
+            <div>🗺️ Monlevade: ${stats.monlevade.toLocaleString()}</div>
+            <div>💧 Nascentes: ${stats.nascentes.toLocaleString()}</div>
+            <div style="margin-top: 5px; font-weight: 600; color: #007bff;">
+                📊 Total: ${total.toLocaleString()} elementos
+            </div>
+        `;
+    }
+}
 
 // Função para buscar localização
 function searchLocation() {
@@ -515,6 +685,30 @@ function captureMap() {
     alert('Funcionalidade de captura de tela seria implementada aqui');
 }
 
+// Função para recarregar camadas
+function reloadLayers() {
+    console.log('Recarregando camadas...');
+    
+    // Limpar camadas existentes
+    if (ruasLayer) {
+        map.removeLayer(ruasLayer);
+        ruasLayer.clearLayers();
+    }
+    if (monlevadeLayer) {
+        map.removeLayer(monlevadeLayer);
+        monlevadeLayer.clearLayers();
+    }
+    if (nascentesLayer) {
+        map.removeLayer(nascentesLayer);
+        nascentesLayer.clearLayers();
+    }
+    
+    // Recarregar dados
+    loadGeoJSONData();
+    
+    showSuccess('Camadas recarregadas!');
+}
+
 // Adicionar teclas de atalho
 document.addEventListener('keydown', function(e) {
     switch(e.key) {
@@ -529,6 +723,10 @@ document.addEventListener('keydown', function(e) {
         case 's':
         case 'S':
             searchLocation();
+            break;
+        case 'r':
+        case 'R':
+            reloadLayers();
             break;
     }
 }); 

@@ -5,11 +5,13 @@ Sistema WebGIS desenvolvido com **Leaflet** para visualização de dados geográ
 ## 🌟 Características
 
 - **Mapas interativos** com múltiplas camadas
-- **Dados GeoJSON** de imóveis e limites municipais
+- **Dados GeoJSON** de ruas, limites municipais e nascentes
 - **Múltiplos mapas base** (Street Maps, Satélite, Terreno)
 - **Interface responsiva** e moderna
 - **Ferramentas de navegação** e busca
 - **Sistema de diagnóstico** integrado
+- **Legendas aprimoradas** com estatísticas em tempo real
+- **Popups informativos** com design moderno
 
 ## 🚀 Como Executar
 
@@ -38,7 +40,7 @@ GISWEB/
 ├── script.js               # Código JavaScript principal
 ├── package.json            # Configurações do projeto
 ├── data/
-│   ├── imoveis.geojson     # Dados de imóveis
+│   ├── RUAS.geojson        # Dados da malha viária
 │   ├── Monlevade.geojson   # Limites municipais
 │   └── Nascentes.geojson   # Dados de nascentes
 ├── diagnostico.html        # Página de diagnóstico
@@ -52,6 +54,10 @@ GISWEB/
 ### Página Principal
 - **URL:** http://localhost:8000
 - **Descrição:** WebGIS completo com todas as funcionalidades
+
+### Teste de Camadas
+- **URL:** http://localhost:8000/teste-camadas.html
+- **Descrição:** Verificação do status das camadas e sistema
 
 ### Página de Diagnóstico
 - **URL:** http://localhost:8000/diagnostico.html
@@ -73,7 +79,7 @@ GISWEB/
 - **Terreno:** OpenTopoMap
 
 ### Camadas de Dados
-- **Imóveis:** Dados georreferenciados de imóveis
+- **Ruas:** Dados georreferenciados da malha viária
 - **Monlevade:** Limites municipais
 - **Nascentes:** Pontos de nascentes com informações de qualidade e vazão
 
@@ -83,6 +89,7 @@ GISWEB/
 - **Medição:** Distâncias e áreas
 - **Exportação:** Dados em GeoJSON
 - **Tela cheia:** Modo fullscreen
+- **Recarregar:** Recarregamento de camadas (tecla R)
 
 ## 🔧 Tecnologias Utilizadas
 
@@ -94,10 +101,10 @@ GISWEB/
 
 ## 📊 Dados
 
-### Imóveis
-- **Arquivo:** `data/imoveis.geojson`
-- **Tipo:** Pontos georreferenciados
-- **Estilo:** Vermelho com transparência
+### Ruas
+- **Arquivo:** `data/RUAS.geojson`
+- **Tipo:** Linhas georreferenciadas
+- **Estilo:** Laranja com transparência
 
 ### Monlevade
 - **Arquivo:** `data/Monlevade.geojson`
@@ -124,6 +131,14 @@ GISWEB/
 - ✅ Mapas base gratuitos
 - ✅ Sistema de diagnóstico
 - ✅ Páginas de teste
+- ✅ Carregamento otimizado de camadas grandes
+- ✅ Sistema de verificação de status das camadas
+- ✅ Recarregamento de camadas
+- ✅ Interface de teste dedicada
+- ✅ Legendas aprimoradas com estatísticas
+- ✅ Popups informativos modernos
+- ✅ Formatação de dados em português
+- ✅ Atualização automática de estatísticas
 
 ## 🌍 Acesso Online
 

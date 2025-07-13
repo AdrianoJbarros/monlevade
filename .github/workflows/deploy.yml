@@ -12,9 +12,34 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Build and test
+      run: |
+        echo "Verificando arquivos..."
+        ls -la
+        echo "Verificando dados..."
+        ls -la data/
+        echo "Testando WebGIS..."
+        python -m http.server 8000 &
+        sleep 5
+        curl -f http://localhost:8000 || exit 1
+        curl -f http://localhost:8000/index.html || exit 1
+        curl -f http://localhost:8000/script.js || exit 1
+        curl -f http://localhost:8000/data/RUAS.geojson || exit 1
+        curl -f http://localhost:8000/data/Monlevade.geojson || exit 1
+        curl -f http://localhost:8000/data/Nascentes.geojson || exit 1
+    
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: . 
+        publish_dir: .
+        force_orphan: true 
